@@ -19,7 +19,7 @@ export default function Header({ onGenerateCode }: HeaderProps) {
 
   const handleGenerateCode = async () => {
     try {
-      const response = await fetch("http://localhost:8000/generate-code", {
+      const response = await fetch("http://localhost:8000/api/py/generate", {
         method: "POST",
       });
       const data = await response.json();

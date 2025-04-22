@@ -8,23 +8,57 @@ import IntegratedDrawIO from "./components/IntegratedDrawIO";
 
 export default function Home() {
   const drawioRef = useRef<any>(null);
-  const [logContent, setLogContent] = useState('');
+  const [logs, setLogs] = useState<string[]>([]);
+  const [errors, setErrors] = useState<string[]>([]);
+  const [codeOutput, setCodeOutput] = useState('');
 
-  const handleGenerateCode = () => {
-    drawioRef.current?.exportXml((xml: string) => {
-      setLogContent(xml);
+  const handleGenerateCode = async () => {
+    drawioRef.current?.exportXml(async (data: string) => {
+      setLogs((prev) => [...prev, '[GenerateCode] Exported data received']);
+  
+      if (data.startsWith('data:image/svg+xml;base64,')) {
+        const base64 = data.replace('data:image/svg+xml;base64,', '');
+        const decodedSvg = atob(base64); // Full SVG with embedded XML
+  
+        const file = new File([decodedSvg], 'diagram.drawio', { type: 'text/xml' });
+        const formData = new FormData();
+        formData.append('file', file);
+  
+        try {
+          const response = await fetch('http://localhost:8000/api/py/generate', {
+            method: 'POST',
+            body: formData,
+          });
+  
+          const result = await response.json();
+          setCodeOutput(result.code);
+          setLogs((prev) => [...prev, '[GenerateCode] Code generated successfully']);
+        } catch (err: any) {
+          setErrors((prev) => [...prev, `[Error] ${err.message}`]);
+        }
+      } else {
+        setErrors((prev) => [...prev, '[Error] Unexpected format: expected base64 SVG']);
+      }
     });
+  };
+
+  const handleLoadExample = async (path: string) => {
+    //alert("Loading example diagram" + path + "...");
+    const res = await fetch(path);
+    const xml = await res.text();
+    console.log(xml);
+    drawioRef.current?.loadXml(xml);
   };
 
   return (
     <div className="min-h-screen bg-gray-100 text-3xl flex flex-col">
       <Header onGenerateCode={handleGenerateCode} />
       <div className="flex flex-1 w-full overflow-hidden">
-        <LeftSidebar />
+        <LeftSidebar onLoadExample={handleLoadExample} />
         <div className="flex flex-grow overflow-hidden">
           <IntegratedDrawIO ref={drawioRef} />
         </div>
-        <RightSidebar logs = {logContent} />
+        <RightSidebar logs={logs} errors={errors} codeOutput={codeOutput}/>
       </div>
     </div>
   );

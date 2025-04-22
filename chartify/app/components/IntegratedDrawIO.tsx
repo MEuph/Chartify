@@ -7,11 +7,13 @@ const IntegratedDrawIO = forwardRef((props, ref) => {
 
   useImperativeHandle(ref, () => ({
     exportXml(callback: (xml: string) => void) {
-      iframeRef.current?.contentWindow?.postMessage(
+      const iframe = iframeRef.current;
+    
+      iframe?.contentWindow?.postMessage(
         JSON.stringify({ action: 'export', format: 'xml' }),
         '*'
       );
-
+    
       const handleExport = (event: MessageEvent) => {
         if (
           event.origin === 'https://embed.diagrams.net' &&
@@ -20,15 +22,27 @@ const IntegratedDrawIO = forwardRef((props, ref) => {
           try {
             const msg = JSON.parse(event.data);
             if (msg.event === 'export' && msg.data) {
-              callback(msg.data);
+              callback(msg.data); // This will now be proper raw XML
               window.removeEventListener('message', handleExport);
             }
           } catch (_) {}
         }
       };
-
+    
       window.addEventListener('message', handleExport);
     },
+
+    loadXml(xml: string) {
+      iframeRef.current?.contentWindow?.postMessage(
+        JSON.stringify({
+          action: 'load',
+          autosave: 1,
+          xml,
+          title: 'Foobar'
+        }),
+        '*'
+      );
+    }
   }));
 
   useEffect(() => {

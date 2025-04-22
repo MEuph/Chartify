@@ -2,16 +2,26 @@
 
 import { useState, useRef, useEffect } from "react";
 
-export default function LeftSidebar() {
+type LeftSidebarProps = {
+  onLoadExample: (path: string) => void;
+};
+
+export default function LeftSidebar({ onLoadExample }: LeftSidebarProps) {
   const [expanded, setExpanded] = useState<{ [key: string]: boolean }>({
     Templates: false,
     Tips: false,
   });
 
+  const templates = [
+    { name: "Divide by Zero", path: "/templates/div_by_zero.drawio" },
+    { name: "Nested Loop", path: "/templates/nested_loop.drawio" },
+    { name: "Reusable Function", path: "/templates/reusable_function.drawio" },
+  ]
+
   const sidebarRef = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(250); // default width in pixels
   const isResizing = useRef(false);
-  
+
   const overlayId = 'resize-overlay';
 
   const addOverlay = () => {
@@ -27,7 +37,7 @@ export default function LeftSidebar() {
     overlay.style.background = 'transparent';
     document.body.appendChild(overlay);
   };
-  
+
   const removeOverlay = () => {
     const overlay = document.getElementById(overlayId);
     if (overlay) document.body.removeChild(overlay);
@@ -71,69 +81,71 @@ export default function LeftSidebar() {
       <h2 className="font-bold text-gray-700 text-2xl mb-6 whitespace-nowrap overflow-hidden text-ellipsis">📁 Project Tools</h2>
 
       {/* Expandable: Templates */}
-    <div>
+      <div>
         <button
-            className="w-full text-left text-lg px-4 py-2 bg-white hover:bg-gray-100 rounded-md whitespace-nowrap overflow-hidden text-ellipsis"
-            onClick={() =>
+          className="w-full text-left text-lg px-4 py-2 bg-white hover:bg-gray-100 rounded-md whitespace-nowrap overflow-hidden text-ellipsis"
+          onClick={() =>
             setExpanded((prev) => ({ ...prev, Templates: !prev.Templates }))
-            }
+          }
         >
-            📌 Templates
+          📌 Templates
         </button>
         <div
-            className={`mt-2 space-y-2 text-base text-gray-700 transition-all duration-300 ease-in-out overflow-hidden ${
-            expanded.Templates ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+          className={`mt-2 space-y-2 text-base text-gray-700 transition-all duration-300 ease-in-out overflow-hidden ${expanded.Templates ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
             }`}
         >
-            <button className="block w-full text-sm text-left pl-20 py-1 hover:bg-gray-100 rounded-md overflow-hidden text-ellipsis">
-            Template 1
-            </button>
-            <button className="block w-full text-sm text-left pl-20 py-1 hover:bg-gray-100 rounded-md overflow-hidden text-ellipsis">
-            Template 2
-            </button>
+          {
+            templates.map((template) => (
+              <button
+                key={template.path}
+                className="block w-full text-sm text-left pl-20 py-1 hover:bg-gray-100 rounded-md overflow-hidden text-ellipsis"
+                onClick={() => onLoadExample(template.path)}
+              >
+                {template.name}
+              </button>
+            ))}
         </div>
-    </div>
+      </div>
 
 
-    {/* Expandable: Tips */}
-    <div>
+      {/* Expandable: Tips */}
+      <div>
         <button
-            className="w-full text-left text-base px-4 py-2 bg-white hover:bg-gray-100 rounded-md whitespace-nowrap overflow-hidden text-ellipsis"
-            onClick={() =>
+          className="w-full text-left text-base px-4 py-2 bg-white hover:bg-gray-100 rounded-md whitespace-nowrap overflow-hidden text-ellipsis"
+          onClick={() =>
             setExpanded((prev) => ({ ...prev, Tips: !prev.Tips }))
-            }
+          }
         >
-            💡 Tips
+          💡 Tips
         </button>
         <div
-            className={`mt-2 space-y-2 text-sm text-gray-700 transition-all duration-300 ease-in-out overflow-hidden ${
-            expanded.Tips ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+          className={`mt-2 space-y-2 text-sm text-gray-700 transition-all duration-300 ease-in-out overflow-hidden ${expanded.Tips ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
             }`}
         >
-            <button className="block w-full text-sm text-left pl-20 py-1 hover:bg-gray-100 rounded-md overflow-hidden text-ellipsis">
+          <button className="block w-full text-sm text-left pl-20 py-1 hover:bg-gray-100 rounded-md overflow-hidden text-ellipsis">
             Tip 1
-            </button>
-            <button className="block w-full text-sm text-left pl-20 py-1 hover:bg-gray-100 rounded-md overflow-hidden text-ellipsis">
+          </button>
+          <button className="block w-full text-sm text-left pl-20 py-1 hover:bg-gray-100 rounded-md overflow-hidden text-ellipsis">
             Tip 2
-            </button>
+          </button>
         </div>
+      </div>
+
+
+      {/* AI Chat Button */}
+      <button className="w-full text-base text-left px-4 py-2 bg-white hover:bg-gray-100 rounded-md whitespace-nowrap overflow-hidden text-ellipsis">
+        🤖 AI Chat
+      </button>
+
+      {/* Resize handle */}
+      <div
+        onMouseDown={() => {
+          isResizing.current = true;
+          document.body.classList.add('no-select');
+          addOverlay();
+        }}
+        className="absolute top-0 right-0 h-full w-2 cursor-col-resize bg-transparent hover:bg-gray-400 transition-colors"
+      />
     </div>
-
-
-    {/* AI Chat Button */}
-    <button className="w-full text-base text-left px-4 py-2 bg-white hover:bg-gray-100 rounded-md whitespace-nowrap overflow-hidden text-ellipsis">
-    🤖 AI Chat
-    </button>
-
-    {/* Resize handle */}
-    <div
-    onMouseDown={() => {
-      isResizing.current = true;
-      document.body.classList.add('no-select');
-      addOverlay();
-    }}
-    className="absolute top-0 right-0 h-full w-2 cursor-col-resize bg-transparent hover:bg-gray-400 transition-colors"
-    />
-</div>
   );
 }

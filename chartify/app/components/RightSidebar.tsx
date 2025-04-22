@@ -4,14 +4,16 @@ import { useState, useRef, useEffect } from "react";
 import { FiCopy, FiDownload, FiShare2 } from "react-icons/fi";
 
 type RightSidebarProps = {
-    logs: string;
+    logs: string[];
+    errors: string[];
+    codeOutput: string;
 };
 
-export default function RightSidebar({ logs }: RightSidebarProps) {
+export default function RightSidebar({ logs, errors, codeOutput }: RightSidebarProps) {
   const [width, setWidth] = useState(350);
   const isResizing = useRef(false);
   const sidebarRef = useRef<HTMLDivElement>(null);
-  const [activeTab, setActiveTab] = useState("Code Output");
+  const [activeTab, setActiveTab] = useState<'Code Output' | 'Logs' | 'Errors'>("Code Output");
 
   const overlayId = 'resize-overlay';
 
@@ -63,6 +65,28 @@ export default function RightSidebar({ logs }: RightSidebarProps) {
     };
   }, []);
 
+  const tabContent = {
+    'Code Output': (
+      <div className="flex-1 bg-gray-100 rounded-md p-4 font-mono text-gray-600 text-base overflow-auto whitespace-pre-wrap break-words">
+        {codeOutput || 'No code generated yet.'}
+      </div>
+    ),
+    Logs: (
+      <div className="flex-1 bg-black text-white font-mono text-sm p-4 overflow-auto whitespace-pre">
+        {logs.map((line, i) => (
+          <div key={i}>{line}</div>
+        ))}
+      </div>
+    ),
+    Errors: (
+      <div className="flex-1 bg-black text-red-400 font-mono text-sm p-4 overflow-auto whitespace-pre">
+        {errors.map((line, i) => (
+          <div key={i}>{line}</div>
+        ))}
+      </div>
+    ),
+  };
+
   return (
     <div
       ref={sidebarRef}
@@ -71,11 +95,11 @@ export default function RightSidebar({ logs }: RightSidebarProps) {
     >
       {/* Tabs */}
       <div className="flex flex-row justify-center space-x-0 mb-4 whitespace-nowrap overflow-hidden text-ellipsis">
-        {['Code Output', 'Logs', 'Errors'].map((tab) => (
+      {(['Code Output', 'Logs', 'Errors'] as const).map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`px-4 py-2 text-white font-semibold text-lg transition-colors duration-200 ${
+            className={`px-4 py-2 rounded-md text-white font-semibold text-lg transition-colors duration-200 ${
               activeTab === tab ? 'bg-blue-900' : 'bg-blue-700 hover:bg-blue-800'
             }`}
           >
@@ -85,8 +109,8 @@ export default function RightSidebar({ logs }: RightSidebarProps) {
       </div>
 
       {/* Output Box */}
-      <div className="flex-1 mb-4 bg-gray-100 rounded-md p-4 font-mono text-gray-600 text-sm whitespace-wrap overflow-scroll">
-        {`This is the ${logs} content.`}
+      <div className="flex-1 mb-4 bg-gray-100 rounded-md p-4 font-mono text-gray-600 text-sm whitespace-pre-wrap break-words overflow-scroll">
+        {tabContent[activeTab]}
       </div>
 
       {/* Buttons */}
