@@ -2,6 +2,8 @@
 
 import { useState, useRef, useEffect } from "react";
 import { FiCopy, FiDownload, FiShare2 } from "react-icons/fi";
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { oneLight } from 'react-syntax-highlighter/dist/cjs/styles/prism';
 
 type RightSidebarProps = {
     logs: string[];
@@ -14,6 +16,7 @@ export default function RightSidebar({ logs, errors, codeOutput }: RightSidebarP
   const isResizing = useRef(false);
   const sidebarRef = useRef<HTMLDivElement>(null);
   const [activeTab, setActiveTab] = useState<'Code Output' | 'Logs' | 'Errors'>("Code Output");
+  const [copied, setCopied] = useState(false);
 
   const overlayId = 'resize-overlay';
 
@@ -41,7 +44,7 @@ export default function RightSidebar({ logs, errors, codeOutput }: RightSidebarP
       if (isResizing.current && sidebarRef.current) {
         const screenWidth = window.innerWidth;
         const newWidth = screenWidth - e.clientX;
-        if (newWidth >= 150 && newWidth <= 350) {
+        if (newWidth >= 150 && newWidth <= 700) {
           setWidth(newWidth);
         }
       }
@@ -67,8 +70,10 @@ export default function RightSidebar({ logs, errors, codeOutput }: RightSidebarP
 
   const tabContent = {
     'Code Output': (
-      <div className="flex-1 bg-gray-100 rounded-md p-4 font-mono text-gray-600 text-base overflow-auto whitespace-pre-wrap break-words">
-        {codeOutput || 'No code generated yet.'}
+      <div className="flex-1 bg-gray-900 rounded-md p-2 font-mono text-gray-100 text-base overflow-auto whitespace-pre">
+        <SyntaxHighlighter language="python" style={oneLight} wrapLongLines={false} showLineNumbers>
+          {codeOutput || '# No code generated yet.'}
+        </SyntaxHighlighter>
       </div>
     ),
     Logs: (
@@ -87,6 +92,30 @@ export default function RightSidebar({ logs, errors, codeOutput }: RightSidebarP
     ),
   };
 
+  const handleCopy = async() => {
+    if (!codeOutput) return;
+    try {
+      await navigator.clipboard.writeText(codeOutput);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch (err) {
+      console.error("Failed to copy", err);
+    }
+  };
+
+  const handleDownload = () => {
+    if (!codeOutput) return;
+    const blob = new Blob([codeOutput], { type: 'text/x-python' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'generated_code.py'
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div
       ref={sidebarRef}
@@ -99,7 +128,7 @@ export default function RightSidebar({ logs, errors, codeOutput }: RightSidebarP
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`px-4 py-2 rounded-md text-white font-semibold text-lg transition-colors duration-200 ${
+            className={`px-4 py-2 text-white font-semibold text-lg transition-colors duration-200 ${
               activeTab === tab ? 'bg-blue-900' : 'bg-blue-700 hover:bg-blue-800'
             }`}
           >
@@ -109,21 +138,27 @@ export default function RightSidebar({ logs, errors, codeOutput }: RightSidebarP
       </div>
 
       {/* Output Box */}
-      <div className="flex-1 mb-4 bg-gray-100 rounded-md p-4 font-mono text-gray-600 text-sm whitespace-pre-wrap break-words overflow-scroll">
+      <div className="flex-1 mb-4 bg-gray-100 rounded-md p-4 font-mono text-gray-600 text-sm whitespace-nowrap overflow-scroll">
         {tabContent[activeTab]}
       </div>
 
       {/* Buttons */}
       <div className="flex justify-between mt-auto text-sm">
-        <button className="flex items-center space-x-2 px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-md whitespace-nowrap overflow-hidden text-ellipsis">
-          <FiCopy /> <span>Copy</span>
-        </button>
-        <button className="flex items-center space-x-2 px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-md whitespace-nowrap overflow-hidden text-ellipsis">
-          <FiDownload /> <span>Download</span>
-        </button>
-        <button className="flex items-center space-x-2 px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-md whitespace-nowrap overflow-hidden text-ellipsis">
-          <FiShare2 /> <span>Export</span>
-        </button>
+      <button
+            onClick={handleCopy}
+            className={`flex items-center space-x-2 px-4 py-2 rounded-md transition-all duration-300 ${
+              copied ? 'bg-green-600 text-white' : 'bg-gray-200 hover:bg-gray-300'
+            }`}
+          >
+            <FiCopy /> <span>{copied ? 'Copied' : 'Copy'}</span>
+          </button>
+
+          <button
+            onClick={handleDownload}
+            className="flex items-center space-x-2 px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-md"
+          >
+            <FiDownload /> <span>Download</span>
+          </button>
       </div>
 
       {/* Resize handle */}

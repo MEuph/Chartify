@@ -10,7 +10,7 @@ const IntegratedDrawIO = forwardRef((props, ref) => {
       const iframe = iframeRef.current;
     
       iframe?.contentWindow?.postMessage(
-        JSON.stringify({ action: 'export', format: 'xml' }),
+        JSON.stringify({ action: 'export', format: 'html2'}),
         '*'
       );
     
@@ -21,8 +21,10 @@ const IntegratedDrawIO = forwardRef((props, ref) => {
         ) {
           try {
             const msg = JSON.parse(event.data);
+            console.log(`msg: ${msg}\n\nmsg.data: ${event.data}\n\msg['xml']: ${msg['xml']}`);
             if (msg.event === 'export' && msg.data) {
-              callback(msg.data); // This will now be proper raw XML
+              callback(msg['xml']); // This will now be proper raw XML
+              console.log(`[IntegratedDrawIO]: msg: ${msg}`);
               window.removeEventListener('message', handleExport);
             }
           } catch (_) {}
@@ -43,6 +45,7 @@ const IntegratedDrawIO = forwardRef((props, ref) => {
         '*'
       );
     }
+    
   }));
 
   useEffect(() => {

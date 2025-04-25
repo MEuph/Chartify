@@ -13,9 +13,16 @@ export default function LeftSidebar({ onLoadExample }: LeftSidebarProps) {
   });
 
   const templates = [
-    { name: "Divide by Zero", path: "/templates/div_by_zero.drawio" },
+    { name: "Call Function", path: "/templates/call_function.drawio" },
+    { name: "Compound Conditional", path: "/templates/compound_conditional.drawio" },
+    { name: "Divide By Zero", path: "/templates/div_by_zero.drawio" },
+    { name: "Loop/Break", path: "/templates/loop_break.drawio" },
+    { name: "Nested If", path: "/templates/nested_if.drawio" },
     { name: "Nested Loop", path: "/templates/nested_loop.drawio" },
     { name: "Reusable Function", path: "/templates/reusable_function.drawio" },
+    { name: "Simple If", path: "/templates/simple_if.drawio" },
+    { name: "Simple Loop", path: "/templates/simple_loop.drawio" },
+    { name: "Unreachable Branch", path: "/templates/unreachable_branch.drawio" },
   ]
 
   const sidebarRef = useRef<HTMLDivElement>(null);
@@ -107,8 +114,8 @@ export default function LeftSidebar({ onLoadExample }: LeftSidebarProps) {
         </div>
       </div>
 
-
-      {/* Expandable: Tips */}
+      
+      {/* Expandable: Tips
       <div>
         <button
           className="w-full text-left text-base px-4 py-2 bg-white hover:bg-gray-100 rounded-md whitespace-nowrap overflow-hidden text-ellipsis"
@@ -130,12 +137,13 @@ export default function LeftSidebar({ onLoadExample }: LeftSidebarProps) {
           </button>
         </div>
       </div>
+       */}
 
 
-      {/* AI Chat Button */}
+      {/* AI Chat Button
       <button className="w-full text-base text-left px-4 py-2 bg-white hover:bg-gray-100 rounded-md whitespace-nowrap overflow-hidden text-ellipsis">
         🤖 AI Chat
-      </button>
+      </button> */}
 
       {/* Resize handle */}
       <div

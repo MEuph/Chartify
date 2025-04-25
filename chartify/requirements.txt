@@ -1,6 +1,6 @@
 fastapi==0.115.0
 uvicorn[standard]==0.30.6
-openai
+openai==0.28
 python-multipart
 pydantic
 graphviz==0.20.3

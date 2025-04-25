@@ -13,14 +13,16 @@ export default function Home() {
   const [codeOutput, setCodeOutput] = useState('');
 
   const handleGenerateCode = async () => {
+    console.log('starting generation');
     drawioRef.current?.exportXml(async (data: string) => {
       setLogs((prev) => [...prev, '[GenerateCode] Exported data received']);
-  
-      if (data.startsWith('data:image/svg+xml;base64,')) {
-        const base64 = data.replace('data:image/svg+xml;base64,', '');
-        const decodedSvg = atob(base64); // Full SVG with embedded XML
-  
-        const file = new File([decodedSvg], 'diagram.drawio', { type: 'text/xml' });
+
+      //if (data.startsWith('data:image/svg+xml;base64,')) {
+      //  const base64 = data.replace('data:image/svg+xml;base64,', '');
+      //  const decodedSvg = atob(base64); // Full SVG with embedded XML
+        console.log(`data: ${data}`);
+        const file = new File([data], 'diagram.drawio', { type: 'text/xml' });
+        console.log(file.text());
         const formData = new FormData();
         formData.append('file', file);
   
@@ -36,9 +38,9 @@ export default function Home() {
         } catch (err: any) {
           setErrors((prev) => [...prev, `[Error] ${err.message}`]);
         }
-      } else {
-        setErrors((prev) => [...prev, '[Error] Unexpected format: expected base64 SVG']);
-      }
+      // } else {
+        // setErrors((prev) => [...prev, '[Error] Unexpected format: expected base64 SVG']);
+      // }
     });
   };
 

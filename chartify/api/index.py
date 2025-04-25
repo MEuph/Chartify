@@ -7,6 +7,7 @@ import openai, os
 from tempfile import NamedTemporaryFile
 
 load_dotenv()
+
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 SYSTEM_PROMPT = "Only output the corrected and complete source code. No explanation, no comments."
@@ -22,9 +23,9 @@ app.add_middleware(
 )
  
 
-@app.get("/api/py/helloFastApi")
-def hello():
-    return {"message": "Hello from FastAPI!"}
+@app.get("/api/py/sanity_check")
+def sanity_check():
+    return {"sanity": "Your sanity has been validated."}
 
 @app.post("/api/py/generate")
 async def generate_code(file: UploadFile = File(...)):
@@ -86,7 +87,3 @@ def build_prompt_from_graph(graph):
 
     walk(graph.start_node_id)
     return "\n".join(lines)
-
-@app.post("/api/py/test")
-async def test_cors():
-    return {"message": "Hello from CORS-safe route!"}
