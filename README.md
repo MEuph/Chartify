@@ -1,4 +1,4 @@
-# Chartify
+# AlgoDraft
 
 AlgoDraft is an innovative platform designed to help users bridge the gap between algorithmic thinking and coding. By allowing users to create **flowcharts that automatically generate source code**, AlgoDraft shifts the focus from memorizing syntax to mastering logical problem-solving. 
 
